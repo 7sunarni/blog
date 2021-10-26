@@ -1,0 +1,13 @@
+# Linux 零拷贝
+
+## 原理
+利用 Linux 的 Pipe，创建一对 Pipe Pair, 从源文件往 Pipe 一端写，Pipe 另一端写到目的文件。
+
+## Go 实现
+(https://github.com/hanwen/go-fuse/tree/master/splice)[https://github.com/hanwen/go-fuse/tree/master/splice]
+
+## benchmark
+TODO:
+
+## Mac 的实现
+TODO:
