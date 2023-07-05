@@ -1,3 +1,114 @@
+## k8s client-ca auth
+
+kubeconfig 中使用了 client-ca auth 来进行身份认证
+
+客户端请求的时候带上自己的 tls cert 和 key 文件。
+
+```bash
+curl --cert client.crt --key client.key --cacert apiserver.crt https://apiserver
+```
+
+```go
+package main
+
+import (
+	"crypto/tls"
+	"crypto/x509"
+	"fmt"
+	"io/ioutil"
+	"net/http"
+
+	"k8s.io/client-go/util/cert"
+)
+
+func defaultVerifyOptions() x509.VerifyOptions {
+	return x509.VerifyOptions{
+		KeyUsages: []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth},
+	}
+}
+
+func main() {
+	x509cert, err := tls.LoadX509KeyPair("$apiserver.cert",
+		"$apiserver.key")
+	if err != nil {
+		panic(err)
+	}
+
+	
+
+	data, err := ioutil.ReadFile("$apiserver.cert")
+	if err != nil {
+		panic(err)
+	}
+
+    x509cert2, err := tls.LoadX509KeyPair("client.cert",
+		"client.cert")
+	if err != nil {
+		panic(err)
+	}
+
+	verifyOptions := defaultVerifyOptions()
+	verifyOptions.Roots, err = cert.NewPoolFromBytes(data)
+	if err != nil {
+		panic(err)
+	}
+	for _, i := range x509cert2.Certificate {
+		certs, err := x509.ParseCertificates(i)
+		if err != nil {
+			panic(err)
+		}
+		for _, c := range certs {
+			verifyOptions.Roots.AddCert(c)
+		}
+	}
+
+	for _, i := range x509cert.Certificate {
+		certs, err := x509.ParseCertificates(i)
+		if err != nil {
+			panic(err)
+		}
+		for _, c := range certs {
+			fmt.Println(c.Issuer.CommonName)
+		}
+	}
+
+	config := &tls.Config{Certificates: []tls.Certificate{x509cert}, ClientAuth: tls.RequestClientCert}
+	server := &http.Server{
+		Addr:      ":8080",
+		Handler:   nil, // Use DefaultServeMux
+		TLSConfig: config,
+	}
+
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		for _, c := range r.TLS.PeerCertificates {
+			chanins, err := c.Verify(verifyOptions)
+			if err != nil {
+				fmt.Println("verify", err)
+			}
+			fmt.Println(len(chanins))
+			for _, chain := range chanins {
+				for _, citem := range chain {
+					fmt.Println(citem.Issuer.CommonName)
+				}
+			}
+		}
+	})
+
+	err = server.ListenAndServeTLS("", "")
+	if err != nil {
+		panic(err)
+	}
+}
+
+/*
+curl \
+--cert misty-crt.crt \
+--key misty-crt.key \
+--cacert apiserver.crt \
+ https://127.0.0.1:8080
+*/
+```
+
 # tls 证书文件
 
 [https://crypto.stackexchange.com/questions/43697/what-are-the-differences-between-pem-csr-key-crt-and-other-such-file-exte](https://crypto.stackexchange.com/questions/43697/what-are-the-differences-between-pem-csr-key-crt-and-other-such-file-exte)
