@@ -1,3 +1,24 @@
+## Golang TLS
+Go 中实现了 tls，而不是调用 openssl 来实现。
+对于根证书，会使用系统的根证书。同时提供了环境变量来自定义根证书。见 go 源码 /src/crypto/x509/root_unix.go:L19
+在使用的时候用 Go 开发的程序来进行 https 访问的时候，可以通过设置环境变量的方式来避免 tls 的报错。
+e.g. 使用 docker pull 自签证书的镜像
+1. 使用 harbor 搭建一个自签的镜像源，假设域名为 7sunarni.space
+2. 使用 ctr image pull 镜像会报错
+```shell
+ctr image pull 7sunarni.space/library/busybox:latest
+
+INFO[0000] trying next host                              error="failed to do request: Head \"https://7sunarni.space/v2/library/busybox/manifests/latest\": x509: certificate signed by unknown authority" host=7sunarni.space
+ctr: failed to resolve reference "7sunarni.space/library/busybox:latest": failed to do request: Head "https://7sunarni.space/v2/library/busybox/manifests/latest": x509: certificate signed by unknown authority
+```
+3. 设置环境变量使用自签的 ca.crt 为根证书
+```shell
+export SSL_CERT_FILE=$HARBOR_CA_CRT_PATH
+ctr image pull 7sunarni.space/library/busybox:latest
+...
+done: 18.710299ms # 成功
+```
+
 ## k8s client-ca auth
 
 kubeconfig 中使用了 client-ca auth 来进行身份认证
