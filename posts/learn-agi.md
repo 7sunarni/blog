@@ -6,6 +6,9 @@
 ## Tokenization
 是机器学习和 NLP 处理中的一块领域，指的是将连续的文本转化成例如 token 的小部分，这些小部分可以为一个字母或者一个单词。这个过程重要的主要原因在于通过将自然语言拆分成 bite-size 的块，让机器能够理解人类语言。
 
+## RAG 
+Retrieval Augmented Generation
+
 ## Transformer 
 ```python
 # Transformer example code
