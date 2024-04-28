@@ -1,4 +1,4 @@
-# Learn AGI
+# Learn AIGC
 
 ## 向量化 Quantilization
 向量化是一种技术，将模型使用的 float32 位的数据转成 float16 和 int8，这样可以节省计算和内存资源，理论上可以提高推理效率。
