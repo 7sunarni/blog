@@ -8,6 +8,54 @@
 
 ## RAG 
 Retrieval Augmented Generation
+```python
+# https://github.com/stephen37/ollama_local_rag
+from langchain_community.document_loaders import PyPDFLoader
+loader = PyPDFLoader(
+"https://d18rn0p25nwr6d.cloudfront.net/CIK-0001813756/975b3e9b-268e-4798-a9e4-2a9a7c92dc10.pdf"
+)
+data = loader.load()
+
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+
+text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=0)
+all_splits = text_splitter.split_documents(data)
+
+from langchain_community.embeddings.jina import JinaEmbeddings
+from langchain.vectorstores.milvus import Milvus
+
+embeddings = JinaEmbeddings(
+   jina_api_key="jina_0e97662bf44747bf840d93728cad2e61sqLWuvsRtixsiuo9vxMjz5sCaIXz", model_name="jina-embeddings-v2-small-en"
+)
+vectorstore = Milvus.from_documents(documents=all_splits, embedding=embeddings)
+
+
+from langchain_community.llms import Ollama
+from langchain.callbacks.manager import CallbackManager
+from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
+
+llm = Ollama(
+model="llama3",
+callback_manager=CallbackManager(
+            [StreamingStdOutCallbackHandler()]
+),
+stop=["<|eot_id|>"],
+)
+
+from langchain import hub
+
+query = input("\nQuery: ")
+prompt = hub.pull("rlm/rag-prompt")
+from langchain.chains import RetrievalQA
+
+qa_chain = RetrievalQA.from_chain_type(
+    llm, retriever=vectorstore.as_retriever(), chain_type_kwargs={"prompt": prompt}
+)
+
+result = qa_chain({"query": query})
+print(result)
+
+```
 
 ## Transformer 
 ```python
