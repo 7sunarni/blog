@@ -10,24 +10,19 @@
 Retrieval Augmented Generation
 ```python
 # https://github.com/stephen37/ollama_local_rag
-from langchain_community.document_loaders import PyPDFLoader
-loader = PyPDFLoader(
-"https://d18rn0p25nwr6d.cloudfront.net/CIK-0001813756/975b3e9b-268e-4798-a9e4-2a9a7c92dc10.pdf"
+from langchain_community.embeddings import HuggingFaceEmbeddings
+model_name = "thenlper/gte-base"
+model_kwargs = {'device': 'cuda:2'}
+encode_kwargs = {'normalize_embeddings': False}
+hf = HuggingFaceEmbeddings(
+    model_name=model_name,
+    model_kwargs=model_kwargs,
+    encode_kwargs=encode_kwargs
 )
-data = loader.load()
 
-from langchain.text_splitter import RecursiveCharacterTextSplitter
 
-text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=0)
-all_splits = text_splitter.split_documents(data)
-
-from langchain_community.embeddings.jina import JinaEmbeddings
 from langchain.vectorstores.milvus import Milvus
-
-embeddings = JinaEmbeddings(
-   jina_api_key="jina_0e97662bf44747bf840d93728cad2e61sqLWuvsRtixsiuo9vxMjz5sCaIXz", model_name="jina-embeddings-v2-small-en"
-)
-vectorstore = Milvus.from_documents(documents=all_splits, embedding=embeddings)
+vectorstore = Milvus.from_texts(["",""], embedding=hf)
 
 
 from langchain_community.llms import Ollama
