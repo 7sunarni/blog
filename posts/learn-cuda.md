@@ -2,7 +2,9 @@
 
 Merge Sort using cuda
 ```cuda
-// merge_sort.cu
+// cat merge_sort.cu
+// nvcc merge_sort.cu -o merge_sort
+// ./merge_sort
 #include <stdio.h>
 #include <stdlib.h>
 #define N 256 // Sort array size
@@ -93,8 +95,13 @@ int main()
     cudaDeviceSynchronize();
     cudaMemcpy(hostArray, deviceArray, N * sizeof(float), cudaMemcpyDeviceToHost);
     printf("after sort\n");
-    for (int i = 0; i < N; i++)
+    for (int i = 1; i < N; i++)
     {
+        flout prev = hostArray[i-1];
+        if (hostArray[i] < prev){
+            printf("Failed: %d %f small than previos %f", i, hostArray[i], prev);
+            break;
+        }
         printf("%f \n", hostArray[i]);
     }
     cudaFree(deviceArray);
