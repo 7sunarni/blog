@@ -10,19 +10,12 @@
 Retrieval Augmented Generation
 ```python
 # https://github.com/stephen37/ollama_local_rag
-from langchain_community.embeddings import HuggingFaceEmbeddings
-model_name = "thenlper/gte-base"
-model_kwargs = {'device': 'cuda:2'}
-encode_kwargs = {'normalize_embeddings': False}
-hf = HuggingFaceEmbeddings(
-    model_name=model_name,
-    model_kwargs=model_kwargs,
-    encode_kwargs=encode_kwargs
-)
-
+# https://python.langchain.com/v0.1/docs/integrations/llms/ollama/#via-langchain
+from langchain_community.embeddings import OllamaEmbeddings
+embeddings = OllamaEmbeddings(model="llama3:70b")
 
 from langchain.vectorstores.milvus import Milvus
-vectorstore = Milvus.from_texts(["",""], embedding=hf)
+vectorstore = Milvus.from_texts(["",""], embedding=embeddings)
 
 
 from langchain_community.llms import Ollama
