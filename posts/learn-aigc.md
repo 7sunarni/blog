@@ -6,6 +6,74 @@
 ## Tokenization
 是机器学习和 NLP 处理中的一块领域，指的是将连续的文本转化成例如 token 的小部分，这些小部分可以为一个字母或者一个单词。这个过程重要的主要原因在于通过将自然语言拆分成 bite-size 的块，让机器能够理解人类语言。
 
+## Milvus similar search
+```python
+import random
+
+from pymilvus import (
+    connections,
+    FieldSchema, CollectionSchema, DataType,
+    Collection,
+    utility
+)
+from langchain_community.embeddings import OllamaEmbeddings
+embeddings = OllamaEmbeddings(model="llama3:70b")
+
+
+_HOST = '127.0.0.1'
+_PORT = '19530'
+
+# Const names
+_COLLECTION_NAME = 'demo'
+_ID_FIELD_NAME = 'id_field'
+_VECTOR_FIELD_NAME = 'float_vector_field'
+
+# Vector parameters
+_DIM = 8192
+_INDEX_FILE_SIZE = 32  # max file size of stored index
+
+# Index parameters
+_METRIC_TYPE = 'L2'
+_INDEX_TYPE = 'IVF_FLAT'
+_NLIST = 1024
+_NPROBE = 16
+_TOPK = 3
+
+connections.connect(host=_HOST, port=_PORT)
+field1 = FieldSchema(name=_ID_FIELD_NAME, dtype=DataType.INT64, description="int64", is_primary=True)
+field2 = FieldSchema(name=_VECTOR_FIELD_NAME, dtype=DataType.FLOAT_VECTOR, description="float vector", dim=_DIM,
+                        is_primary=False)
+schema = CollectionSchema(fields=[field1, field2], description="collection description")
+collection = Collection(name=_COLLECTION_NAME, data=None, schema=schema, properties={"collection.ttl.seconds": 15})
+
+data = [
+        [i for i in range(10)],
+        [embeddings.embed_documents(i)[0] for i in [""]],
+    ]
+collection.insert(data)
+collection.flush()
+
+index_param = {
+        "index_type": _INDEX_TYPE,
+        "params": {"nlist": _NLIST},
+        "metric_type": _METRIC_TYPE}
+collection.create_index(_VECTOR_FIELD_NAME, index_param)
+collection.load()
+
+search_param = {
+        "data": [embeddings.embed_documents("")[0]],
+        "anns_field": _VECTOR_FIELD_NAME,
+        "param": {"metric_type": _METRIC_TYPE, "params": {"nprobe": _NPROBE}},
+        "limit": _TOPK,
+        "expr": "id_field >= 0"}
+results = collection.search(**search_param)
+for i, result in enumerate(results):
+    print("\nSearch result for {}th vector: ".format(i))
+    for j, res in enumerate(result):
+        print("Top {}: {}".format(j, res))
+```
+
+
 ## RAG 
 Retrieval Augmented Generation
 ```python
