@@ -97,7 +97,7 @@ int main()
     printf("after sort\n");
     for (int i = 1; i < N; i++)
     {
-        flout prev = hostArray[i-1];
+        float prev = hostArray[i-1];
         if (hostArray[i] < prev){
             printf("Failed: %d %f small than previos %f", i, hostArray[i], prev);
             break;
