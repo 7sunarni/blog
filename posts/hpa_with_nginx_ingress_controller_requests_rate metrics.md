@@ -39,15 +39,15 @@ containers:
     - --cert-dir=/tmp/cert
     - --prometheus-url=http://prometheus-server.kube-system.svc.cluster.local:80 # prometheus-server address
     - --metrics-relist-interval=1m
-    - --v=4
+    - --v=8 # lift log level
     - --config=/etc/adapter/config.yaml
 ```
 - check k8s can correct get prometheus-adapter metrics
 ```shell
-kubectl get --raw '/apis/custom.metrics.k8s.io/v1beta1/namespaces/*/metrics/nginx_ingress_controller_requests
+kubectl get --raw '/apis/custom.metrics.k8s.io/v1beta1/namespaces/*/metrics/nginx_ingress_controller_requests'
 # if you get some data, its ok
 ```
-- add nginx_ingress_controller_requests_rate metrics to prometheus-adapter, then restart 
+- add nginx_ingress_controller_requests_rate metrics to prometheus-adapter configmap, then restart prometheus-adapter pod
 ```yaml
 # prometheus-adapter configmap
     - seriesQuery: '{__name__=~"^nginx_ingress_controller_requests.*",namespace!=""}'
