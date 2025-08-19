@@ -3,8 +3,8 @@
 ## Step by step with self-checking
 
 ### 1. Ingress-Nginx Controller 
-Ingress-Nginx Controller have two version, which matained by [nginx team](https://github.com/nginxinc/kubernetes-ingress) and [K8s team](https://github.com/kubernetes/ingress-nginx), here we use [K8s team](https://github.com/kubernetes/ingress-nginx)
-- Follow the [offical document](https://kubernetes.github.io/ingress-nginx/deploy/), install the Ingress-Nginx Controller and make sure ingress-nginx pod running. Notice here you need to enable metrics collect, if you install it with helm, [set this)[https://github.com/kubernetes/ingress-nginx/tree/main/charts/ingress-nginx#prometheus-metrics], and after you enable the metrics collcate, you can find args in pod spec.
+Ingress-Nginx Controller have two versions, which matained by [nginx team](https://github.com/nginxinc/kubernetes-ingress) and [K8s team](https://github.com/kubernetes/ingress-nginx), here we use [K8s team](https://github.com/kubernetes/ingress-nginx)
+- Follow the [offical document](https://kubernetes.github.io/ingress-nginx/deploy/), install the Ingress-Nginx Controller and make sure ingress-nginx pod running. Notice here you need to enable metrics collect, if you install it with helm, [set this](https://github.com/kubernetes/ingress-nginx/tree/main/charts/ingress-nginx#prometheus-metrics), and after you enable the metrics collcate, you can find args in pod spec.
 ```yaml
 # ingress-nginx pod spec
 ...
@@ -42,7 +42,7 @@ containers:
     - --v=8 # lift log level
     - --config=/etc/adapter/config.yaml
 ```
-- check k8s can correct get prometheus-adapter metrics
+- check K8s can correct get prometheus-adapter metrics
 ```shell
 kubectl get --raw '/apis/custom.metrics.k8s.io/v1beta1/namespaces/*/metrics/nginx_ingress_controller_requests'
 # if you get some data, its ok
