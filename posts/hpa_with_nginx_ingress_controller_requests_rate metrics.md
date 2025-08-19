@@ -64,7 +64,7 @@ kubectl get --raw '/apis/custom.metrics.k8s.io/v1beta1/namespaces/*/metrics/ngin
 ```
 - check nginx_ingress_controller_requests metrics can be allocate correct
 ```shell
-kubectl get --raw '/apis/custom.metrics.k8s.io/v1beta1/namespaces/*/metrics/nginx_ingress_controller_requests_rate
+kubectl get --raw '/apis/custom.metrics.k8s.io/v1beta1/namespaces/*/metrics/nginx_ingress_controller_requests_rate'
 # if you get some data, its ok
 ```
 ### HPA
