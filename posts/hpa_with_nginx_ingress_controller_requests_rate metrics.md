@@ -2,9 +2,9 @@
 
 ## Step by step with self-checking
 
-### 1. Ingress-Nginx Controller 
-Ingress-Nginx Controller have two versions, which matained by [nginx team](https://github.com/nginxinc/kubernetes-ingress) and [K8s team](https://github.com/kubernetes/ingress-nginx), here we use [K8s team](https://github.com/kubernetes/ingress-nginx)
-- Follow the [offical document](https://kubernetes.github.io/ingress-nginx/deploy/), install the Ingress-Nginx Controller and make sure ingress-nginx pod running. Notice here you need to enable metrics collect, if you install it with helm, [set this](https://github.com/kubernetes/ingress-nginx/tree/main/charts/ingress-nginx#prometheus-metrics), and after you enable the metrics collcate, you can find args in pod spec.
+### 1. Ingress-NGINX Controller 
+Ingress-NGINX Controller have two versions, which maintained by [nginx team](https://github.com/nginxinc/kubernetes-ingress) and [K8s team](https://github.com/kubernetes/ingress-nginx), here we use [K8s team](https://github.com/kubernetes/ingress-nginx)
+- Follow the [official document](https://kubernetes.github.io/ingress-nginx/deploy/), install the Ingress-NGINX Controller and make sure the ingress-nginx Pod is running. Notice here you need to enable metrics collection, if you install it with helm, [set this](https://github.com/kubernetes/ingress-nginx/tree/main/charts/ingress-nginx#prometheus-metrics), and after you enable the metrics collection, you can find args in pod spec.
 ```yaml
 # ingress-nginx pod spec
 ...
@@ -14,10 +14,10 @@ metadata:
     prometheus.io/scrape: "true"
 ...
 ```
-- Follow [offical document](https://kubernetes.io/docs/concepts/services-networking/ingress/) deploy a test deployment, configure its service and ingress rule. And make some http requests through ingress
+- Follow [official document](https://kubernetes.io/docs/concepts/services-networking/ingress/) deploy a test deployment, configure its service and ingress rule. And make some http requests through ingress
 - check the ingress-nginx already collect the request metrics 
 ```sh
-curl http://$ingress_nginx_pod_ip:$metrics-port/metrics | grep "nginx_ingress_controller_requests"
+curl http://$ingress_nginx_pod_ip:$metrics_port/metrics | grep "nginx_ingress_controller_requests"
 
 # if you see the counter not 0, it's ok here
 # HELP nginx_ingress_controller_requests The total number of client requests.
@@ -26,10 +26,10 @@ curl http://$ingress_nginx_pod_ip:$metrics-port/metrics | grep "nginx_ingress_co
 
 ```
 ### 2. Prometheus
-- Follow the [offical helm document](https://github.com/prometheus-community/helm-charts/tree/main/charts/prometheus#install-chart) install prometheus, make sure prometheus-server pod is running.
+- Follow the [official helm document](https://github.com/prometheus-community/helm-charts/tree/main/charts/prometheus#install-chart) install prometheus, make sure prometheus-server pod is running.
 
 ### 3. Prometheus-Adapter
-- Follow the [offical helm document](https://github.com/prometheus-community/helm-charts/blob/main/charts/prometheus-adapter/README.md#install-helm-chart) install prometheus-adapter, make sure prometheus-adapter pod is running. Notice here you need configure prometheus-adapter connect to prometheus-server with assign its args ``.
+- Follow the [official helm document](https://github.com/prometheus-community/helm-charts/blob/main/charts/prometheus-adapter/README.md#install-helm-chart) install prometheus-adapter, make sure prometheus-adapter pod is running. Notice here you need configure prometheus-adapter connect to prometheus-server with assign its args ``.
 ```yaml
 # prometheus-adapter pod spec
 containers:
@@ -39,10 +39,10 @@ containers:
     - --cert-dir=/tmp/cert
     - --prometheus-url=http://prometheus-server.kube-system.svc.cluster.local:80 # prometheus-server address
     - --metrics-relist-interval=1m
-    - --v=8 # lift log level
+    - --v=8 # increase log verbosity
     - --config=/etc/adapter/config.yaml
 ```
-- check K8s can correct get prometheus-adapter metrics
+- check K8s can correctly get prometheus-adapter metrics
 ```shell
 kubectl get --raw '/apis/custom.metrics.k8s.io/v1beta1/namespaces/*/metrics/nginx_ingress_controller_requests'
 # if you get some data, its ok
@@ -68,7 +68,7 @@ kubectl get --raw '/apis/custom.metrics.k8s.io/v1beta1/namespaces/*/metrics/ngin
 # if you get some data, its ok
 ```
 ### HPA
-- Follow [offical document](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/) deploy hpa
+- Follow [official document](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/) deploy hpa
 
 ### Config ingress-nginx metrics hpa
 - create hpa rule
